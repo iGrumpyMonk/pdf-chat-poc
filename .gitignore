@@ -1,0 +1,6 @@
+# Don’t share API key
+.env
+# Don’t share generated FAISS index
+faiss_pdf_index/
+# Python cache
+__pycache__/
