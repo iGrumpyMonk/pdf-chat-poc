@@ -1,0 +1,39 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 566 >>
+stream
+BT /F1 24 Tf 72 750 Td (Customer Support Playbook \(Docs-only test\)) Tj ET
+BT /F1 12 Tf 72 720 Td (Hours: Mon-Fri 08:00-20:00 GST, Sat 10:00-16:00 GST) Tj ET
+BT /F1 12 Tf 72 702 Td (Priority levels: P1 Critical, P2 High, P3 Normal, P4 Low) Tj ET
+BT /F1 12 Tf 72 684 Td (SLA targets: P1 1h response/4h resolve; P2 2h/8h; P3 4h/24h; P4 8h/72h) Tj ET
+BT /F1 12 Tf 72 666 Td (Escalation path: Support Lead -> IT -> Ops Manager) Tj ET
+BT /F1 12 Tf 72 648 Td (Ticket system: helpdesk.myshop.local) Tj ET
+BT /F1 12 Tf 72 630 Td (Contact email: support@myshop.local) Tj ET
+endstream
+
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000858 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+928
+%%EOF

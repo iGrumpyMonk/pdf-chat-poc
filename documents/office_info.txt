@@ -1,0 +1,20 @@
+MyShop Office Information (Docs-only test)
+
+Headquarters:
+- Address: Dubai Internet City, Building 12, Floor 3
+- Reception Hours: Mon-Fri 09:00-18:00 (Gulf Standard Time)
+- Security Desk: Ground Floor, ext 100
+- Emergency Contact: +971-50-123-4567
+
+Guest WiFi:
+- SSID: MyShop-Guest
+- Password: shopguest2025!
+
+Parking:
+- Visitor parking on P1 for up to 3 hours.
+- Staff parking on P2 with permit.
+
+Facilities:
+- Meeting rooms book via rooms@myshop.local
+- Pantry open 24/7, badge required after 19:00
+- Printer queue: PRN-DXB-01
