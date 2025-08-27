@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+langchain-core
+langchain-openai
+langchain-chroma
+langchain-community
+chromadb
+openai
+python-dotenv
+pyodbc
+pypdf
+docx2txt
