@@ -13,3 +13,6 @@ PyPDF2
 python-docx
 pypdf
 docx2txt
+passlib[bcrypt]
+python-jose[cryptography]
+email-validator
