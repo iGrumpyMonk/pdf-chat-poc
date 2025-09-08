@@ -1,14 +1,55 @@
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Depends
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_community.utilities import SQLDatabase
 from langchain_community.tools.sql_database.tool import QuerySQLDatabaseTool
 import urllib.parse
+import random
+from auth import require_admin, require_manager, get_current_active_user, require_admin_or_manager
 from settings import DB_CONNECTION_STRING, AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, OPENAI_API_VERSION
 
 router = APIRouter()
 
 _sql_db = None
+
+GREETING_RESPONSES = [
+    "Hello! I'm here to help you with questions about our products, orders, and company policies.",
+    "Hi there! What can I help you find today?",
+    "Welcome! I can assist you with product information, order details, and company documentation.",
+    "Hey! Feel free to ask me about our products, sales data, or company policies."
+]
+
+FALLBACK_RESPONSES = [
+    "I'm not sure I understand. Could you ask about our products, orders, or company policies?",
+    "Could you rephrase that? I can help with product questions, order information, and company documentation.",
+    "I didn't quite get that. Try asking about our products, sales data, or company policies.",
+    "That's unclear to me. I'm here to help with product info, orders, and company documents."
+]
+
+
+def detect_intent(llm: AzureChatOpenAI, user_input: str) -> str:
+    """
+    Detect the intent of user input
+    Returns: 'greeting', 'query', or 'unknown'
+    """
+    intent_prompt = SystemMessage(content=(
+        "You are an intent classifier for MyShop customer service system.\n"
+        "Classify the user input into ONE of these categories:\n\n"
+        "- 'greeting': Greetings, hello, hi, how are you, thanks, goodbye, small talk\n"
+        "- 'query': Real questions about products, orders, sales, policies, company info, documentation\n"
+        "- 'unknown': Unclear input, gibberish, random words, unrelated topics\n\n"
+        "Respond with ONLY the category name: greeting, query, or unknown"
+    ))
+
+    response = llm.invoke([intent_prompt, HumanMessage(
+        content=f"User input: {user_input}")]).content.strip().lower()
+
+    if 'greeting' in response:
+        return 'greeting'
+    elif 'query' in response:
+        return 'query'
+    else:
+        return 'unknown'
 
 
 def get_sql_database():
@@ -41,10 +82,6 @@ def add_to_history(request: Request, session_id: str, question: str, answer: str
     history.append(entry)
     if len(history) > 10:
         history.pop(0)
-
-
-def rewrite_question_with_context(llm: AzureChatOpenAI, question: str, history: list) -> str:
-    return question
 
 
 def route_question(llm: AzureChatOpenAI, question: str) -> str:
@@ -166,7 +203,7 @@ def create_azure_llm(model_name: str) -> AzureChatOpenAI:
     )
 
 
-@router.get("/api/ask")
+@router.get("/api/ask", dependencies=[Depends(require_admin)])
 async def ask_question(
     request: Request,
     question: str = Query(..., description="Your question"),
@@ -176,23 +213,37 @@ async def ask_question(
     if not question.strip():
         return {"error": "Please provide a question"}
 
-    # Use the Azure LLM with the model from app state
     llm = create_azure_llm(request.app.state.CHAT_MODEL)
 
     try:
         history = get_conversation_history(request, session_id)
-        contextual_question = rewrite_question_with_context(
-            llm, question, history)
-        route = route_question(llm, contextual_question)
 
-        print(
-            f" Question: '{question}' → Contextual: '{contextual_question}' → Route: {route}")
+        intent = detect_intent(llm, question)
+        print(f" Intent detected: {intent} for question: '{question}'")
+
+        if intent == "greeting":
+            answer = random.choice(GREETING_RESPONSES)
+            add_to_history(request, session_id, question, answer)
+            return {
+                "answer": answer,
+                "sources": [{"type": "greeting", "intent": "greeting"}]
+            }
+
+        elif intent == "unknown":
+            answer = random.choice(FALLBACK_RESPONSES)
+            add_to_history(request, session_id, question, answer)
+            return {
+                "answer": answer,
+                "sources": [{"type": "fallback", "intent": "unknown"}]
+            }
+        route = route_question(llm, question)
+        print(f" Question: '{question}' → Route: {route}")
 
         if route == "sql":
-            result = handle_sql_question(llm, contextual_question, history)
+            result = handle_sql_question(llm, question, history)
         else:
-            result = handle_docs_question(
-                llm, request.app.state.vs, contextual_question)
+            result = handle_docs_question(llm, request.app.state.vs, question)
+
         sql_query = result.get("sql_query")
         add_to_history(request, session_id, question,
                        result["answer"], sql_query)
